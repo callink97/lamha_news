@@ -1,6 +1,8 @@
 <?php
 include 'includes/db.php';
 
+$errors = [];
+
 $message = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -9,6 +11,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
     $role = $_POST['role'];
+
+    if (strlen($password) < 8) {
+
+        $errors[] = "Password must be at least 8 characters";
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+
+        $errors[] = "Invalid Email Format";
+
+    }
+
+    if (!str_ends_with($email, "@gmail.com")) {
+
+        $errors[] = "Email must end with @gmail.com";
+
+    }
+
 
     if (!str_ends_with($email, "@gmail.com")) {
 
@@ -28,90 +48,99 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $sql = "INSERT INTO users(username,email,password,role)
                     VALUES('$username','$email','$password','$role')";
 
-            if(mysqli_query($conn, $sql)) {
+            if (mysqli_query($conn, $sql)) {
 
                 header("Location: login.php");
 
             } else {
 
-                $message = "Something went wrong ❌";
+                $message = "Something went wrong   ";
             }
         }
     }
 }
 ?>
 
+<?php if (!empty($errors)) { ?>
+
+    <ul class="errors">
+
+        <?php foreach ($errors as $error) { ?>
+
+            <li><?php echo $error; ?></li>
+
+        <?php } ?>
+
+    </ul>
+
+<?php } ?>
+
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Register - Lamha News</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-<!-- Navbar -->
+    <!-- Navbar -->
 
-<div class="navbar">
+    <div class="navbar">
 
-    <div class="logo">Lamha News</div>
+        <div class="logo">Lamha News</div>
 
-    <div class="nav-links">
-        <a href="login.php">Sign In</a>
-        <a href="register.php">Sign Up</a>
+        <div class="nav-links">
+            <a href="login.php">Sign In</a>
+            <a href="register.php">Sign Up</a>
+        </div>
+
     </div>
 
-</div>
+    <!-- Register Section -->
 
-<!-- Register Section -->
+    <div class="login-container">
 
-<div class="login-container">
+        <div class="left-side"></div>
 
-    <div class="left-side"></div>
+        <div class="right-side">
 
-    <div class="right-side">
+            <div class="login-box">
 
-        <div class="login-box">
+                <h2>Create an Account </h2>
 
-            <h2>Create Account ✨</h2>
+                <form method="POST">
 
-            <form method="POST">
+                    <input type="text" name="username" placeholder="Enter Username" required>
 
-                <input type="text"
-                       name="username"
-                       placeholder="Enter Username"
-                       required>
+                    <input type="email" name="email" placeholder="Enter Gmail" required>
 
-                <input type="email"
-                       name="email"
-                       placeholder="Enter Gmail"
-                       required>
+                    <input type="password" name="password" placeholder="Enter Password" required>
 
-                <input type="password"
-                       name="password"
-                       placeholder="Enter Password"
-                       required>
-
-                <select name="role"
+                    <select name="role"
                         style="width:100%;padding:12px;margin-bottom:15px;border:1px solid #ccc;border-radius:5px;">
 
-                    <option value="user">User</option>
-                    <option value="journalist">Journalist</option>
+                        <option value="user">User</option>
+                        <option value="journalist">Journalist</option>
 
-                </select>
+                    </select>
 
-                <button type="submit">Create Account</button>
+                    <button type="submit">Create Account</button>
 
-            </form>
+                </form>
 
-            <p style="color:red;">
-                <?php echo $message; ?>
-            </p>
+                <p style="color:red;">
+                    <?php echo $message; ?>
+                </p>
 
-            <div class="signup-link">
+                <div class="signup-link">
 
-                Already have an account?
+                    Already have an account?
 
-                <a href="login.php">Sign In</a>
+                    <a href="login.php">Sign In</a>
+
+                </div>
 
             </div>
 
@@ -119,9 +148,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     </div>
 
-</div>
-
-<?php include 'includes/footer.php'; ?>
+    <?php include 'includes/footer.php'; ?>
 
 </body>
+
 </html>
